@@ -1,0 +1,24 @@
+{
+  "originHash" : "bd7050c2571e4cf35fed961353a20a8dcd834b71d01dbe3be9193635098d409f",
+  "pins" : [
+    {
+      "identity" : "reswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ReSwift/ReSwift.git",
+      "state" : {
+        "revision" : "cb5c3c02f652420ef413dea41e13ac5a76b6c0fd",
+        "version" : "6.1.1"
+      }
+    },
+    {
+      "identity" : "reswift-thunk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ReSwift/ReSwift-Thunk.git",
+      "state" : {
+        "revision" : "5ee9816158a2115863b1458c66cf1be9e9143b39",
+        "version" : "2.0.1"
+      }
+    }
+  ],
+  "version" : 3
+}
