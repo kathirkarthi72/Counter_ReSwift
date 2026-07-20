@@ -36,75 +36,69 @@ Below is the complete architectural overview showing how **SwiftUI Views**, the 
 
 ```mermaid
 flowchart TB
-    subgraph UI_Layer ["📱 SwiftUI Presentation Layer"]
-        CV["CounterView\n(Sync Counter UI)"]
-        PV["PostsListView\n(Async Posts UI)"]
-        PRV["ProfileView\n(Settings & State UI)"]
+    subgraph UI_Layer ["SwiftUI Presentation Layer"]
+        CV["CounterView"]
+        PV["PostsListView"]
+        PRV["ProfileView"]
         MTV["MainTabView"]
     end
 
-    subgraph Bridge_Layer ["🔄 Reactive Bridge Layer"]
-        OS["ObservableStore&lt;AppState&gt;\n(StoreSubscriber &amp; ObservableObject)"]
+    subgraph Bridge_Layer ["Reactive Bridge Layer"]
+        OS["ObservableStore AppState"]
     end
 
-    subgraph Redux_Core ["⚡ ReSwift &amp; ReSwiftThunk Core Engine"]
-        ST["mainStore\nStore&lt;AppState&gt;"]
-        MW["createThunkMiddleware()\n(ReSwiftThunk Middleware)"]
-        AR["appReducer(action, state)\n(Root Composite Reducer)"]
+    subgraph Redux_Core ["ReSwift Core Engine"]
+        ST["mainStore"]
+        MW["ReSwiftThunk Middleware"]
+        AR["appReducer"]
     end
 
-    subgraph Async_Layer ["🌐 Async Side-Effects Layer"]
-        PT["PostsThunks\nfetchPostsThunk()"]
-        PS["PostService\n(URLSession API &amp; Fallback Mock)"]
+    subgraph Async_Layer ["Async Side-Effects Layer"]
+        PT["PostsThunks"]
+        PS["PostService"]
     end
 
-    subgraph Reducer_Subdomain ["⚙️ Pure Reducers (Domain Logic)"]
+    subgraph Reducer_Subdomain ["Pure Reducers"]
         CR["counterReducer"]
         PR["postsReducer"]
         UR["userReducer"]
     end
 
-    subgraph State_Tree ["📦 Immutable Single Source of Truth"]
-        AS["AppState (StateType)"]
+    subgraph State_Tree ["AppState Single Source of Truth"]
+        AS["AppState"]
         CS["CounterState"]
         PS_ST["PostsState"]
         US["UserState"]
     end
 
-    %% UI Interactions
-    CV -->|"1. dispatch(CounterAction)"| OS
-    PV -->|"1. dispatch(fetchPostsThunk)"| OS
-    PRV -->|"1. dispatch(UserAction)"| OS
+    CV -->|"1. dispatch Action"| OS
+    PV -->|"1. dispatch Thunk"| OS
+    PRV -->|"1. dispatch Action"| OS
     MTV --> UI_Layer
 
-    %% Bridge to Store
-    OS -->|"2. Forward Action/Thunk"| ST
-    ST -->|"3. Action/Thunk Intercepted"| MW
+    OS -->|"2. Forward Action"| ST
+    ST -->|"3. Intercept"| MW
 
-    %% Thunk Async Pipeline
-    MW -->|"If Thunk Action"| PT
-    PT -->|"Execute Async Task"| PS
-    PS -->|"Return Network Data / Error"| PT
-    PT -->|"Dispatch Pure Sync Actions\n(fetchStarted, fetchSuccess, fetchFailed)"| ST
+    MW -->|"If Thunk"| PT
+    PT -->|"Async Call"| PS
+    PS -->|"API Data"| PT
+    PT -->|"Dispatch Sync Action"| ST
 
-    %% Sync Action Pipeline to Reducers
-    MW -->|"If Pure Sync Action"| AR
+    MW -->|"If Sync Action"| AR
     AR --> CR
     AR --> PR
     AR --> UR
 
-    %% Reducers to State Sub-states
-    CR -->|"Return New Copy"| CS
-    PR -->|"Return New Copy"| PS_ST
-    UR -->|"Return New Copy"| US
+    CR --> CS
+    PR --> PS_ST
+    UR --> US
 
     CS --> AS
     PS_ST --> AS
     US --> AS
 
-    %% State Notification Back to UI
-    AS -.->"4. newState(state) Notification"| OS
-    OS -.->"5. @Published MainActor Update"| UI_Layer
+    AS -->|"4. newState Notification"| OS
+    OS -->|"5. Published Update"| UI_Layer
 ```
 
 ---
